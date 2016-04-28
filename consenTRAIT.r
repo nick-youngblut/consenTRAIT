@@ -6,7 +6,7 @@ rm(list=ls())
 # opt parsing
 suppressPackageStartupMessages(library(docopt))
 
-'Usage: concentrait.r [options] <tree> <root> <trait>
+'Usage: consenTRAIT.r [options] <tree> <root> <trait>
 
 options:
   <tree>       Newick tree file (multitree).
@@ -25,7 +25,7 @@ options:
   -u=<u>       Tau_D bootstrap table name.
                [Default: Tau_D_boot.txt]
   -x=<x>       Create a test tree & trait file with `x` taxa.
-               Output files: "concentrait_TEST*"
+               Output files: "consentrait_TEST*"
   -r=<r>       Model rate parameters for the example traits.
                Lower values mean more conservatism.
                [Default: 0.5,1000]
@@ -50,12 +50,12 @@ description:
   Tau_D is average consensus sequence distance (branch length)
   between trait values.
 
-  This version of concenTRAIT will conduct the non-parametric
+  This version of consenTRAIT will conduct the non-parametric
   bootstrapping (in parallel) for calculating p-values.
 
   The `x` option:
     You will still need to provide something for the `tree` `root` `trait`
-    commands. Example: `concentrait.r -x 20 tmp tmp tmp`
+    commands. Example: `consentrait.r -x 20 tmp tmp tmp`
 
   Dependencies: data.table, adephylo, ape, docopt, parallel
   (if using >1 processor).
@@ -83,10 +83,10 @@ if(opts[['-p']] > 1){
 
 # Test files
 if(!is.null(opts[['-x']])){
-  out.tree = 'concentrait_TEST.nwk'
-  out.trait = 'concentrait_TEST.txt'
-  out.tree.pic1 = 'concentrait_TEST_trait1.pdf'
-  out.tree.pic2 = 'concentrait_TEST_trait2.pdf'
+  out.tree = 'consentrait_TEST.nwk'
+  out.trait = 'consentrait_TEST.txt'
+  out.tree.pic1 = 'consentrait_TEST_trait1.pdf'
+  out.tree.pic2 = 'consentrait_TEST_trait2.pdf'
 
   # tree(s)
   n.taxa = as.numeric(opts['-x'])
