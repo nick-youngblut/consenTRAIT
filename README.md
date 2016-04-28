@@ -14,11 +14,11 @@ Just make sure the R package dependencies are installed:  data.table, adephylo, 
 
 # Example
 
-Making example files with 50 taxa and 2 traits: the 1st trait is conserved and the 2nd is not. 
+Making example files with 100 taxa and 2 traits: the 1st trait is conserved and the 2nd is not. 
 
-`Rscript consenTRAIT.r -x 50 TEST TEST TEST`
+`Rscript consenTRAIT.r -x 100 TEST TEST TEST`
 
-Running consenTRAIT with bootstrapping in parallel
+Running consenTRAIT with bootstrapping in parallel (4 cores)
 
-`Rscript  consenTRAIT.r consentrait_TEST.nwk t1 consentrait_TEST.txt` 
+`Rscript  consenTRAIT.r -p 4 consentrait_TEST.nwk t1 consentrait_TEST.txt` 
 
