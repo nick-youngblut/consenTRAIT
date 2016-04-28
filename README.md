@@ -1,7 +1,7 @@
-# concenTRAIT
+# consenTRAIT
 Phylogenetic conservatism of functional traits in microorganisms
 
-The concenTRAIT algorithm from [Martiny et al., (2013)](http://www.nature.com/ismej/journal/v7/n4/full/ismej2012160a.html) but made executable from the command line, and the bootstrapping can be conducted in parallel. 
+The concsnTRAIT algorithm from [Martiny et al., (2013)](http://www.nature.com/ismej/journal/v7/n4/full/ismej2012160a.html) but made executable from the command line, and the bootstrapping can be conducted in parallel. 
 
 See the [Martiny Lab website](http://www.ess.uci.edu/group/amartiny/research/consentrait) for more information
 
@@ -20,5 +20,5 @@ Making example files with 50 taxa and 2 traits: the 1st trait is conserved and t
 
 Running consenTRAIT with bootstrapping in parallel
 
-`Rscript  consenTRAIT.r concentrait_TEST.nwk t1 concentrait_TEST.txt` 
+`Rscript  consenTRAIT.r consentrait_TEST.nwk t1 consentrait_TEST.txt` 
 
