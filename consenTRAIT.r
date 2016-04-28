@@ -81,53 +81,6 @@ if(opts[['-p']] > 1){
   suppressPackageStartupMessages(library('parallel', character.only=TRUE))
 }
 
-# Test files
-if(!is.null(opts[['-x']])){
-  out.tree = 'consentrait_TEST.nwk'
-  out.trait = 'consentrait_TEST.txt'
-  out.tree.pic1 = 'consentrait_TEST_trait1.pdf'
-  out.tree.pic2 = 'consentrait_TEST_trait2.pdf'
-
-  # tree(s)
-  n.taxa = as.numeric(opts['-x'])
-  tree = rcoal(n.taxa)
-  write.tree(tree, out.tree)
-
-  ## traits
-  taxa = tree$tip.label #sapply(1:n.taxa, function(x) paste0('t', x))
-  model = matrix(c(1,1,1,1), 2)
-  model1 = model * opts[['-r']][1]
-  trait1 = rTraitDisc(tree, model=model1, states=c(0, 1))
-  model2 = model * opts[['-r']][2]
-  trait2 = rTraitDisc(tree, model=model2, states=c(0, 1))
-  df = data.frame('taxa' = taxa,
-    'trait1' = trait1,
-    'trait2' = trait2)
-  write.table(df, out.trait, sep='\t', quote=FALSE,
-              row.names=FALSE, col.names=FALSE)
-
-  # plotting tree
-  pdf(out.tree.pic1, bg='white')
-  plot(tree, show.tip.label=FALSE, adj=1)
-  trait1 = ifelse(trait1==0, 'blue', 'red')
-  tiplabels(pch=22, col=NULL, bg=trait1)
-  dev.off()
-  pdf(out.tree.pic2, bg='white')
-  plot(tree, show.tip.label=FALSE, adj=1)
-  trait2 = ifelse(trait2==0, 'blue', 'red')
-  tiplabels(pch=22, col=NULL, bg=trait2)
-  dev.off()
-
-  # status
-  msg = paste(c('Test files written: ', out.tree,
-    out.trait, out.tree.pic1, out.tree.pic2), collapse='\n  ')
-  cat(paste0(msg,'\n'), file = stderr())
-
-  opt <- options(show.error.messages=FALSE)
-  on.exit(options(opt))
-  stop()
-}
-
 
 #-- functions --#
 format.means = function(x, table){
@@ -264,10 +217,75 @@ conc.trait = function(table, tree_all, opts, boot=FALSE){
   return(Mean_all)
 }
 
+sim_trait = function(phy, model, tries=1000){
+  # simulating a binary trait.
+  # phy = phylogeny, model = rate_model, tries=number of tries to have trait evolve at least once
+  try_cnt = 1
+  while(1==1){    
+    trait = rTraitDisc(phy, model=model, states=c(0, 1), root.value=1)
+    trait = ifelse(trait == 1, 0, 1)
+    if(sum(trait)> 0){
+      return(trait)
+    }
+    try_cnt = try_cnt + 1
+    if(try_cnt > tries){
+      stop('Exceeded tries to evolve the trait. Raise the rate parameter values')
+    }
+  }
+}
 
-
+  
 
 #-- main --#
+# Test files
+if(!is.null(opts[['-x']])){
+  out.tree = 'consentrait_TEST.nwk'
+  out.trait = 'consentrait_TEST.txt'
+  out.tree.pic1 = 'consentrait_TEST_trait1.pdf'
+  out.tree.pic2 = 'consentrait_TEST_trait2.pdf'
+
+  # tree(s)
+  n.taxa = as.numeric(opts['-x'])
+  tree = rcoal(n.taxa)
+  write.tree(tree, out.tree)
+
+  ## traits
+  taxa = tree$tip.label
+  model1 = matrix(c(0,0,1,0), 2) * opts[['-r']][1]
+  trait1 = sim_trait(tree, model1)
+  model2 = matrix(c(1,1,1,1), 2) * opts[['-r']][2]
+  trait2 = sim_trait(tree, model2)  
+
+  df = data.frame('taxa' = taxa,
+    'trait1' = trait1,
+    'trait2' = trait2)
+  write.table(df, out.trait, sep='\t', quote=FALSE,
+              row.names=FALSE, col.names=FALSE)
+
+  # plotting tree
+  pdf(out.tree.pic1, bg='white')
+  plot(tree, show.tip.label=FALSE, adj=1)
+  trait1 = ifelse(trait1==0, 'blue', 'red')
+  tiplabels(pch=22, col=NULL, bg=trait1)
+  dev.off()
+  pdf(out.tree.pic2, bg='white')
+  plot(tree, show.tip.label=FALSE, adj=1)
+  trait2 = ifelse(trait2==0, 'blue', 'red')
+  tiplabels(pch=22, col=NULL, bg=trait2)
+  dev.off()
+
+  # status
+  msg = paste(c('Test files written: ', out.tree,
+    out.trait, out.tree.pic1, out.tree.pic2), collapse='\n  ')
+  cat(paste0(msg,'\n'), file = stderr())
+
+  opt <- options(show.error.messages=FALSE)
+  on.exit(options(opt))
+  stop()
+}
+
+
+#-- consenTRAIT run --#
 # Params
 perc.share.cutoff = as.numeric(opts[['-s']])
 stopifnot((perc.share.cutoff >= 0) &  (perc.share.cutoff <= 100))
@@ -333,7 +351,7 @@ cat('Trait\ttau_D\tp-value', '\n')
 for(n in names(mean_tauD)){
   tau_D = mean_tauD[n]
   boot_tauD = mean_boots[,n]
-  p = 1 - sum(tau_D > boot_tauD) / length(boot_tauD)
+  p = 1 - sum(tau_D < boot_tauD) / length(boot_tauD)
   line = paste(c(n, tau_D, p), collapse='\t')
   cat(line, '\n')
 }
