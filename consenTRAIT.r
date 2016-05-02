@@ -102,7 +102,7 @@ init_data_files = function(cluster_size_file, cluster_dist_file){
       sep = "\t", fill = FALSE, labels = NULL,append = FALSE)
 }
 
-conc.trait = function(table, tree_all, opts, boot=FALSE){
+cons.trait = function(table, tree_all, opts, boot=FALSE){
   if(boot==TRUE){
     cat('Analyzing bootstrap replicate...\n', file = stderr())
   }
@@ -299,7 +299,7 @@ tree_all = read.tree(opts[['<tree>']],keep.multi = TRUE)
 table = read.table(opts[['<trait>']], sep = "\t", header=FALSE)
 
 # Tau_D for each bootstrap tree
-Mean_all = conc.trait(table, tree_all, opts)
+Mean_all = cons.trait(table, tree_all, opts)
 Mean_all = format.means(Mean_all, table)
 ## writting
 write.table(Mean_all,opts[['-t']], sep = "\t", quote=FALSE, row.names=FALSE)
@@ -319,15 +319,15 @@ for(i in 1:opts[['-b']]){
   table.l[[i]] = df.rand
 }
 
-## (parallel) calling of conc.trait
+## (parallel) calling of cons.trait
 if(opts[['-p']] > 1){
   cat('Bootstrapping in parallel\n', file = stderr())
   cl1 = makeCluster(opts[['-p']], type='FORK')
-  mean_boots = parLapply(cl1, table.l, conc.trait,
+  mean_boots = parLapply(cl1, table.l, cons.trait,
     tree_all=tree_all, opts=opts, boot=TRUE)
   stopCluster(cl1)
 } else {
-  mean_boots = lapply(table.l, conc.trait,
+  mean_boots = lapply(table.l, cons.trait,
     tree_all=tree_all, opts=opts, boot=TRUE)
 }
 ## formatting output
