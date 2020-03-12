@@ -119,29 +119,35 @@ cons.trait = function(table, tree_all, opts, boot=FALSE){
     tree = tree_all[[m]]
     z = subset(tree$tip.label,!(tree$tip.label %in% table[,1]))
     if (length(z) > 0) {
-      cat("  WARNING: dropping tips\n", file = stderr())
+      warning("  Dropping ", length(z), " tips")
       drop.tip(tree,z)
     }
 
     #rooting tree with first taxon - change if different root
+    message('Rooting tree on ', opts[['<root>']])
     tree = multi2di(tree)
     root_tree = root(tree,opts[['<root>']]) #,resolve.root=T)
     #replacing negative branch lengths - e.g., from PHYLIP
+    message('Checking branch lengths')
     root_tree$edge.length[root_tree$edge.length <= 0] =  0.000001
-    subtree = subtrees(root_tree, wait=FALSE)
+    message('Getting all subtrees')
+    subtree = subtrees(root_tree, wait=FALSE)    
 
     cluster_mean = numeric(length=0)
     # loop through all traits
+    message('Processing ', ncol(table)-1, 'traits')
     for (j in 2:ncol(table)) {
       if(boot==FALSE){
-        cat("  Analyzing trait: ",j-1,"\n", file = stderr())
+        message("  Analyzing trait: ",j-1)
       }
       #Loading trait table
       table_tmp = table[,c(1,j)]
-      colnames(table_tmp)[1] = "ID";
-      colnames(table_tmp)[2] = "Trait";
+      colnames(table_tmp)[1] = "ID"
+      colnames(table_tmp)[2] = "Trait"
+      table_tmp$Trait = as.numeric(as.character(table_tmp$Trait))
 
       # removing all entries not in tree
+      message('Filtering trait table')
       table_tmp2 = data.table(table_tmp)
       setkey(table_tmp2,ID)
       table2 = table_tmp2[intersect(table_tmp2$ID,root_tree$tip.label)]
@@ -161,6 +167,7 @@ cons.trait = function(table, tree_all, opts, boot=FALSE){
       }
 
       #loop through all subtrees and determining if any subtrees have >P% positives
+      message('Processing all subtrees (n=', length(subtree), ')')
       for (i in 1:length(subtree)){
         tip_names = subtree[[i]]$tip.label
         # apply % shared cutoff
